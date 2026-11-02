@@ -1,6 +1,6 @@
 # Project Reports
 
-Your Name
+Haniyah Strong
 
 * [Tests](./reports/tests/test/)
 * [JavaDoc](./reports/javadoc/)

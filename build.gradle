@@ -58,3 +58,4 @@ task deployReports(dependsOn: ['reports', 'gitPublishPush'])
 application { //Allows  ./gradlew run --args=path-to-test-data
     mainClass = 'edu.odu.cs.MostCommonWords'
 }
+

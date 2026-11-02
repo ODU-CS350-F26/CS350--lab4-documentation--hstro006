@@ -41,7 +41,9 @@ gitPublish {
     repoUri = 'git@github.com:ODU-CS350-F26/CS350--lab4-documentation--hstro006.git'
     branch = 'gh-pages'
     contents {
+        from("$buildDir/reports/index.md")
         from("$buildDir/reports") {
+            exclude 'index.md'
             into 'reports'
         }
     }

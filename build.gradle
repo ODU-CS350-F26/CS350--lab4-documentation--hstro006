@@ -16,6 +16,7 @@ java {
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.7.0'
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
 }
 
@@ -34,38 +35,22 @@ task copyDocs(type: Copy, dependsOn: javadoc) {
     from 'build/docs'
     into 'build/reports'
 }
-task deployReports(dependsOn: reports) {
-    doLast {
-        def repoUri = 'https://odu-cs350-f26.github.io/CS350--lab4-documentation--hstro006/'
-        def srcDir = file("${buildDir}/reports")
-        def workDir = file("${buildDir}/gh-pages-work")
+task reports(dependsOn: [build, copyHtml, copyDocs])
 
-        delete workDir
-        workDir.mkdirs()
-
-        def out = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'ls-remote', '--heads', repoUri, 'gh-pages'
-            standardOutput = out
-        }
-
-        if (out.toString().trim()) {
-            
-            exec { commandLine 'git', 'clone', '--branch', 'gh-pages', repoUri, workDir.absolutePath }
-        } else {
-           
-            exec { commandLine 'git', 'clone', repoUri, workDir.absolutePath }
-            exec { workingDir workDir; commandLine 'git', 'checkout', '--orphan', 'gh-pages' }
-            exec { workingDir workDir; commandLine 'git', 'rm', '-rf', '.' }
-        }
-
-        exec { workingDir workDir; commandLine 'git', 'add', '-A' }
-        exec { workingDir workDir; commandLine 'git', 'commit', '-m', 'Update reports' }
-        exec { workingDir workDir; commandLine 'git', 'push', '-f', 'origin', 'gh-pages' }
+gitPublish {
+    repoUri = 'git@github.com:ODU-CS350-F26/CS350--lab4-documentation--hstro006.git'
+    branch = 'gh-pages'
+    contents {
+        from "$buildDir/reports"
     }
 }
+
+tasks.named('gitPublishCopy') {
+    dependsOn tasks.named('reports')
+}
+
+task deployReports(dependsOn: ['reports', 'gitPublishPush'])
 
 application { //Allows  ./gradlew run --args=path-to-test-data
     mainClass = 'edu.odu.cs.MostCommonWords'
 }
-
